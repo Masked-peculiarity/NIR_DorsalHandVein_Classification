@@ -1,4 +1,4 @@
-# Biometric classification models Testing and Results
+# Biometric classification of DHV - models - Testing and Results
 
 This Repository is a collaborative work of three members meddling with the dorsal hand vein dataset : https://github.com/wilchesf/dorsalhandveins
 # Github member IDs : 

@@ -4,4 +4,4 @@ This Repository is a collaborative work of three members meddling with the dorsa
 # Github member IDs : 
 1) Masked-peculiarity
 2) thenameisyashwanth-sudo
-3) sarvesh-b
+3) Sirthebeast

@@ -1,0 +1,8 @@
+{
+  "variant": "roi",
+  "eer": 5.453,
+  "auc": 0.9878,
+  "eer_threshold": 0.514358,
+  "n_genuine": 678,
+  "n_impostor": 152550
+}

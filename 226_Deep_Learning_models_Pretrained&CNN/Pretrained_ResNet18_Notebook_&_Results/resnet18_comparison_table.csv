@@ -1,0 +1,8 @@
+Model,Rank-1,Rank-5,EER,AUC
+SVM-RBF,80.09%,84.96%,15.56%,0.8593
+LDA,80.38%,88.79%,35.56%,0.6889
+Random Forest,65.04%,83.19%,17.78%,0.8111
+VeinCNN,51.18%,71.83%,9.99%,0.9650
+ResNet-18 (ROI),73.16%,87.02%,5.45%,0.9878
+ResNet-18 (Blackhat),N/A,N/A,N/A,N/A
+ResNet-18 (Frangi),N/A,N/A,N/A,N/A

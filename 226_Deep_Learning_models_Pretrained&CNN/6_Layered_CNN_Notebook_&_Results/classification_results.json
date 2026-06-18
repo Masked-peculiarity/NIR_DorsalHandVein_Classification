@@ -1,0 +1,11 @@
+{
+  "test_images": 678,
+  "test_classes": 226,
+  "top1_accuracy": 51.1799,
+  "top5_accuracy": 71.8289,
+  "mean_per_class_acc": 51.1799,
+  "correct_top1": 347,
+  "correct_top5": 487,
+  "verification_eer": 9.99,
+  "verification_auc": 0.965
+}

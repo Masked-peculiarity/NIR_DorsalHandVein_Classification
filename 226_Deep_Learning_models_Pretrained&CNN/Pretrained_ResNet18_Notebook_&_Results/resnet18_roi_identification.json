@@ -1,0 +1,12 @@
+{
+  "variant": "roi",
+  "top1_accuracy": 73.1563,
+  "top5_accuracy": 87.0206,
+  "mean_per_class_accuracy": 73.1563,
+  "correct_top1": 496,
+  "correct_top5": 590,
+  "test_images": 678,
+  "test_classes": 226,
+  "best_epoch": 50,
+  "best_loss": 0.0078
+}

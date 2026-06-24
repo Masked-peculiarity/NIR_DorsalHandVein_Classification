@@ -58,3 +58,167 @@ The below is the high level explanation of the experiments performed and their r
 
 
 # Experiment - 01
+# Classical Machine Learning pipeline (SVM-rbf, Random Forest, LDA) with Handcrafted Feature Extraction
+
+Classical machine learning algorithms can achieve strong performance on small and medium-sized biometric datasets when paired with carefully designed feature extraction techniques.
+<br>
+A major objective of this work was to understand which vein characteristics contribute to recognition performance.
+The handcrafted feature pipeline provides interpretable descriptors:
+
+- HOG captures vein orientation and edge structure.
+- LBP captures local vein texture patterns.
+- Grid Statistics capture spatial intensity distributions.
+Unlike deep neural networks, where learned representations are often difficult to interpret, these features have clear physical meaning and can be directly related to vein morphology.
+
+## System Architecture
+
+**Raw NIR Image → ROI Extraction → Vein Enhancement (Blackhat / Frangi) → Feature Extraction (HOG + LBP + Grid Statistics) → Feature Fusion → Standardization → PCA Dimensionality Reduction →  Machine Learning Classifiers → Identification & Verification
+                              ├── SVM (RBF)
+                              ├── Random Forest
+                              └── LDA**
+
+## Methodology
+## Feature Extraction
+Instead of deep feature learning, discriminative handcrafted vein descriptors were extracted and fused into a single feature representation.
+
+**HOG Features (Histogram of Oriented Gradients)**
+
+HOG captures:
+      |──  Vein edge orientations
+      |── Local structural information
+      |── Directional vein flow patterns
+
+These descriptors encode the geometric arrangement of vein structures.
+
+**LBP Features (Local Binary Patterns)**
+
+LBP captures:
+   |── Local texture information
+   |── Micro-pattern variations
+   |── Fine vessel textures
+
+Uniform LBP encoding was used to improve robustness.
+
+**Grid-Based Statistical Features**
+
+The ROI is divided into a 4×4 grid.
+
+For each cell: Mean intensity & Standard deviation are computed.
+
+These features capture global vein distribution characteristics across the hand.
+
+**Feature Fusion**
+
+The final biometric representation is obtained by concatenating:  HOG Features + LBP Histogram + Grid Statistics
+This creates a comprehensive feature vector containing:
+
+- Structural information
+- Texture information
+- Spatial distribution information
+- Dimensionality Reduction
+
+Feature vectors are standardized using: StandardScaler
+
+Followed by:
+
+Principal Component Analysis (PCA)
+PCA Configuration
+Reduced to 30 principal components
+Trained exclusively on DB1
+Applied to DB2 without refitting
+
+This prevents data leakage and preserves experimental integrity.
+
+## Classification Models
+
+Three classifiers were evaluated.
+
+**Support Vector Machine (RBF Kernel)**
+
+Characteristics:
+
+-Non-linear decision boundaries
+-Strong generalization capability
+-Effective in high-dimensional spaces
+
+**Random Forest**
+
+Characteristics:
+
+- Ensemble-based learning
+- Robust to feature noise
+- Captures complex decision boundaries
+
+**Linear Discriminant Analysis (LDA)**
+
+Characteristics:
+
+- Maximizes class separability
+- Computationally efficient
+- Well suited for biometric identification tasks
+- Identification Evaluation
+
+Identification was performed as a 113-class classification problem.
+
+Metrics
+Rank-1 Accuracy, Rank-5 Accuracy, Confusion Matrix Analysis, Precision, Recall, F1 Score
+
+**Identification Results**
+
+| Model           | Rank-1 Accuracy | Rank-5 Accuracy |
+|----------------|-----------------|-----------------|
+| SVM (RBF)      | 80.09%          | 84.96%          |
+| Random Forest  | 65.04%          | 83.19%          |
+| LDA            | 80.38%          | 88.79%          |
+
+### **Observation**
+
+LDA achieved the highest identification performance, obtaining:
+
+80.38% Rank-1 Accuracy
+88.79% Rank-5 Accuracy
+
+despite the challenging two-month acquisition gap.
+
+**Verification Evaluation**
+
+Verification was performed using balanced genuine/impostor comparisons.
+
+For each selected identity:
+
+Genuine samples were collected.
+Equal numbers of impostor samples were randomly selected.
+Binary classifiers were trained and evaluated independently.
+Metrics-  Equal Error Rate (EER), Area Under ROC Curve (AUC)
+
+**Verification Results**
+
+| Model          | EER ↓  | AUC ↑  |
+|---------------|--------|--------|
+| SVM (RBF)     | 15.56% | 0.8593 |
+| Random Forest | 17.78% | 0.8111 |
+| LDA           | 35.56% | 0.6889 |
+
+### **Observation**
+
+**SVM** demonstrated the strongest verification capability with: **15.56%- Equal Error Rate, 0.8593 - AUC**
+indicating superior genuine/impostor discrimination.
+
+### Advanced Performance Analysis
+
+**For the best identification model (LDA):
+
+Metric	Value
+Macro Precision - 	77.07%
+Macro Recall	- 80.38%
+Macro F1 Score	- 77.06%**
+
+Confusion analysis revealed that most errors occurred between identities exhibiting highly similar dorsal vein structures or left/right hand symmetry.
+
+### Key Contributions
+- Automated anatomical ROI extraction using the largest inscribed circle and square strategy.
+- Robust vein enhancement using Blackhat and Frangi filtering.
+- Hybrid handcrafted feature representation combining HOG, LBP, and statistical descriptors.
+- Leakage-free PCA and chronological train-test separation.
+- Comprehensive evaluation under a realistic two-month temporal gap.
+- Simultaneous assessment of both identification and verification performance.

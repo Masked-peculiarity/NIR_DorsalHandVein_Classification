@@ -133,7 +133,7 @@ This prevents data leakage and preserves experimental integrity.
 
 Three classifiers were evaluated.
 
-**Support Vector Machine (RBF Kernel)**
+1) **Support Vector Machine (RBF Kernel)**
 
 Characteristics:
 
@@ -141,7 +141,7 @@ Characteristics:
 -Strong generalization capability
 -Effective in high-dimensional spaces
 
-**Random Forest**
+2) **Random Forest**
 
 Characteristics:
 
@@ -149,7 +149,7 @@ Characteristics:
 - Robust to feature noise
 - Captures complex decision boundaries
 
-**Linear Discriminant Analysis (LDA)**
+3) **Linear Discriminant Analysis (LDA)**
 
 Characteristics:
 
@@ -158,12 +158,12 @@ Characteristics:
 - Well suited for biometric identification tasks
 - Identification Evaluation
 
-Identification was performed as a 113-class classification problem.
+Identification was performed as a 226-class classification problem.
 
 Metrics
 Rank-1 Accuracy, Rank-5 Accuracy, Confusion Matrix Analysis, Precision, Recall, F1 Score
 
-**Identification Results**
+### **Identification Results**
 
 | Model           | Rank-1 Accuracy | Rank-5 Accuracy |
 |----------------|-----------------|-----------------|
@@ -191,7 +191,7 @@ Equal numbers of impostor samples were randomly selected.
 Binary classifiers were trained and evaluated independently.
 Metrics-  Equal Error Rate (EER), Area Under ROC Curve (AUC)
 
-**Verification Results**
+### **Verification Results**
 
 | Model          | EER ↓  | AUC ↑  |
 |---------------|--------|--------|

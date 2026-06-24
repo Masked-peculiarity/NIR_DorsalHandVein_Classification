@@ -158,6 +158,7 @@ Characteristics:
 - Well suited for biometric identification tasks
 - Identification Evaluation
 
+## Results
 Identification was performed as a 226-class classification problem.
 
 Metrics

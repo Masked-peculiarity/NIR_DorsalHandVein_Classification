@@ -73,10 +73,7 @@ Unlike deep neural networks, where learned representations are often difficult t
 
 ## System Architecture
 
-**Raw NIR Image → ROI Extraction → Vein Enhancement (Blackhat / Frangi) → Feature Extraction (HOG + LBP + Grid Statistics) → Feature Fusion → Standardization → PCA Dimensionality Reduction →  Machine Learning Classifiers → Identification & Verification
-                              ├── SVM (RBF)
-                              ├── Random Forest
-                              └── LDA**
+**Raw NIR Image → ROI Extraction → Vein Enhancement (Blackhat / Frangi) → Feature Extraction (HOG + LBP + Grid Statistics) → Feature Fusion → Standardization → PCA Dimensionality Reduction →  Machine Learning Classifiers → Identification & Verification**
 
 ## Methodology
 ## Feature Extraction
@@ -85,18 +82,18 @@ Instead of deep feature learning, discriminative handcrafted vein descriptors we
 **HOG Features (Histogram of Oriented Gradients)**
 
 HOG captures:
-      |──  Vein edge orientations
-      |── Local structural information
-      |── Directional vein flow patterns
+-  Vein edge orientations
+- Local structural information
+- Directional vein flow patterns
 
 These descriptors encode the geometric arrangement of vein structures.
 
 **LBP Features (Local Binary Patterns)**
 
 LBP captures:
-   |── Local texture information
-   |── Micro-pattern variations
-   |── Fine vessel textures
+- Local texture information
+- Micro-pattern variations
+- Fine vessel textures
 
 Uniform LBP encoding was used to improve robustness.
 
@@ -239,10 +236,7 @@ Two complementary architectures are investigated:
 
 ## System Architecture
 
-**Raw NIR Image → ROI Extraction → Vein Enhancement → Image Preprocessing (Resize + Normalization) → Deep Neural Network → Deep Feature Learning → 
-                                                                                                       ├── Custom CNN
-                                                                                                       └── ResNet-18   
-226-Class Softmax Classifier → Prediction**
+**Raw NIR Image → ROI Extraction → Vein Enhancement → Image Preprocessing (Resize + Normalization) → Deep Neural Network (CNN & ResNet-18) → Deep Feature Learning → 226-Class Softmax Classifier → Prediction**
 
 ## Deep Learning Models
 
@@ -328,6 +322,7 @@ Deep feature embeddings extracted from the trained models were further evaluated
 
 ResNet-18 also achieved the strongest verification performance, reducing the Equal Error Rate to 5.45% while obtaining an AUC of 0.9878, indicating highly discriminative feature embeddings for genuine and impostor pair separation.
 
+<br>
 <br>
 
 This experiment investigates deep learning as an alternative to handcrafted feature engineering by enabling the model to learn biometric representations directly from image data.

@@ -54,7 +54,8 @@ Dependencies that was used <br>
 Full technical summary is to be uploaded...
 
 
-The below is the high level explanation of the experiments performed and their results...
+The below is the high level explanation of the experiments ( based on the literature survey which was done prior ) performed and their results...
+
 
 
 # Experiment - 01
@@ -223,3 +224,128 @@ Confusion analysis revealed that most errors occurred between identities exhibit
 - Leakage-free PCA and chronological train-test separation.
 - Comprehensive evaluation under a realistic two-month temporal gap.
 - Simultaneous assessment of both identification and verification performance.
+
+
+
+# Experiment - 02
+# Deep learning architecture - CNN and Pretrained Model (ResNet-18)
+
+Unlike the classical machine learning pipeline, which relies on handcrafted feature extraction, this experiment employs deep neural networks to automatically learn discriminative vein representations directly from ROI images.
+
+Two complementary architectures are investigated:
+
+- Custom Convolutional Neural Network (VeinCNN)
+- Transfer Learning with ResNet-18
+
+## System Architecture
+
+**Raw NIR Image → ROI Extraction → Vein Enhancement → Image Preprocessing (Resize + Normalization) → Deep Neural Network → Deep Feature Learning → 
+                                                                                                       ├── Custom CNN
+                                                                                                       └── ResNet-18   
+226-Class Softmax Classifier → Prediction**
+
+## Deep Learning Models
+
+### Custom VeinCNN
+
+A lightweight convolutional neural network was developed specifically for dorsal hand vein recognition.
+
+The network progressively learns:
+
+- Edge information
+- Local vein textures
+- Vascular structures
+- Identity-specific biometric features
+
+The architecture provides a computationally efficient solution while learning discriminative feature representations directly from the input images.
+
+### ResNet-18
+
+A transfer learning approach based on ResNet-18 was implemented to leverage deep residual feature learning.
+
+The pretrained architecture was modified for dorsal hand vein recognition by:
+
+- Adapting the first convolutional layer for grayscale input
+- Replacing the final fully connected layer with a 226-class classifier
+- Fine-tuning the network on dorsal hand vein images
+
+Residual learning enables deeper feature extraction while reducing optimization difficulties associated with deeper networks.
+
+<br>
+
+## Deep Feature Learning
+
+Unlike handcrafted descriptors such as HOG or LBP, the neural networks automatically learn hierarchical biometric representations during training.
+The learned feature embeddings encode:
+
+- Vein geometry
+- Vessel connectivity
+- Local vascular texture
+- Global vein distribution
+- Identity-specific anatomical characteristics
+These learned representations replace manual feature engineering and are optimized directly through supervised learning.
+
+## Training Strategy
+
+Both networks were trained using supervised learning on DB1. The training pipeline includes:
+
+- Cross-Entropy Loss
+- Adam Optimizer
+- Mini-batch training
+- Validation monitoring
+- Model checkpointing
+
+The trained models are evaluated exclusively on DB2, ensuring that no information from the testing session influences training.
+
+## Identification Evaluation
+
+Identification is formulated as a 226-class closed-set classification problem. Each probe image is assigned to one of the enrolled left/right hand identities.
+
+Evaluation Metrics : Rank-1 Accuracy, Rank-5 Accuracy, Precision, Recall, F1 Score, Confusion Matrix
+
+## Identification Performance
+
+| Model          | Rank-1 Accuracy | Rank-5 Accuracy |
+|----------------|----------------:|----------------:|
+| Custom VeinCNN | 51.18%          | 71.83%          |
+| ResNet-18      | 73.16%          | 87.02%          |
+
+### Observation
+
+The ResNet-18 model substantially outperformed the custom CNN, achieving a 73.16% Rank-1 accuracy and 87.02% Rank-5 accuracy. The deeper residual architecture demonstrated a stronger ability to learn discriminative vein representations across the 226 biometric classes despite the temporal separation between enrollment and testing sessions.
+
+
+## Verification Performance
+
+Deep feature embeddings extracted from the trained models were further evaluated for biometric verification.
+
+| Model          | Equal Error Rate (EER ↓) | AUC (↑) |
+|----------------|-------------------------:|--------:|
+| Custom VeinCNN | **9.99%**                | **0.9650** |
+| ResNet-18      | **5.45%**                | **0.9878** |
+
+### Observation
+
+ResNet-18 also achieved the strongest verification performance, reducing the Equal Error Rate to 5.45% while obtaining an AUC of 0.9878, indicating highly discriminative feature embeddings for genuine and impostor pair separation.
+
+<br>
+
+This experiment investigates deep learning as an alternative to handcrafted feature engineering by enabling the model to learn biometric representations directly from image data.
+
+The approach was selected because it offers:
+
+- Automatic extraction of hierarchical vein representations
+- Reduced dependence on manually designed descriptors
+- Better scalability to larger biometric datasets
+- Improved capability to model complex vascular patterns
+
+By comparing a lightweight custom CNN with a deeper transfer learning architecture, the project explores the trade-off between computational efficiency and recognition performance.
+
+## Key Contributions
+- Adaptation of ResNet-18 for grayscale NIR dorsal hand vein images.
+- 226-class biometric identification framework treating left and right hands as independent identities.
+- Deep feature learning without handcrafted feature engineering.
+- Comprehensive assessment using both identification and verification metrics.
+
+
+# Experiment - 03

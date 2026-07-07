@@ -344,3 +344,114 @@ By comparing a lightweight custom CNN with a deeper transfer learning architectu
 
 
 # Experiment - 03
+# Classical Machine Learning pipeline (SVM-rbf, Random Forest, LDA) with Fused Handcrafted Features and comparison between 113 classes and 226 classes
+
+Two identity schemes are evaluated in parallel: a 226-class scheme treating each hand (left and right) as a separate identity, and a 113-class scheme merging both hands per person. All 113 overlapping subjects between the two databases are used.
+
+## System Architecture
+Raw 16-bit TIFF (752×560)
+        │
+        ▼
+┌───────────────────────┐
+│   ROI Extraction      │
+│  Gaussian blur →      │
+│  Otsu threshold →     │
+│  Morph. closing →     │
+│  Largest inscribed    │
+│  circle (dist. xform) │
+│  → inscribed square   │
+│  → resize 128×128     │
+└──────────┬────────────┘
+           │
+     ┌─────┴──────┐
+     ▼            ▼
+┌─────────┐  ┌──────────┐
+│BlackHat │  │  Frangi  │
+│ CLAHE → │  │vesselness│
+│morpho.  │  │ filter → │
+│blackhat │  │  CLAHE   │
+└────┬────┘  └────┬─────┘
+     │             │
+     ▼             ▼
+┌─────────┐  ┌──────────┐
+│ HOG     │  │  HOG     │  288-D each
+│ LBP×2  │  │  LBP×2   │   36-D each
+│ Grid   │  │  Grid    │   32-D each
+└────┬────┘  └────┬─────┘
+     │             │
+     └──────┬──────┘
+            ▼
+     Concatenate → 712-D
+            │
+            ▼
+   PowerTransformer
+   (Yeo-Johnson)
+            │
+            ▼
+    PCA (95% variance)
+            │
+     ┌──────┼──────┐
+     ▼      ▼      ▼
+  SVM-RBF   RF    LDA
+ (GridCV) (400t)  (SVD)
+
+## Feature Extraction
+
+| Component | Details | Dimensionality |
+|-----------|---------|---------------:|
+| Enhancement 1 | BlackHat morphology + CLAHE | — |
+| Enhancement 2 | Frangi vesselness + CLAHE | — |
+| HOG | 8 orientations, 16×16 px cells, 2×2 blocks, L2-Hys norm | 288-D × 2 |
+| LBP (fine) | P=8, R=1, uniform | 10-D × 2 |
+| LBP (coarse) | P=24, R=3, uniform | 26-D × 2 |
+| Grid density | 4×4 grid, mean + std per cell | 32-D × 2 |
+| **Fused total** | BlackHat channel + Frangi channel concatenated | **712-D** |
+
+## Preprocessin & Models
+
+| Stage | Method | Notes |
+|-------|--------|-------|
+| Normalisation | PowerTransformer (Yeo-Johnson) | Handles skewed HOG/LBP distributions better than StandardScaler |
+| Dimensionality reduction | PCA (95% variance retained) | Adapts to intrinsic dimensionality of each class scheme |
+| SVM-RBF | GridSearchCV: C ∈ {1, 10, 100}, γ ∈ {scale, auto, 0.01}, 3-fold CV on train only | `class_weight='balanced'` |
+| Random Forest | 400 trees, `max_features='sqrt'`, `min_samples_leaf=2` | `class_weight='balanced'` |
+| LDA | `solver='svd'` | Numerically stable post-PCA; verify scores require calibration (see Notes) |
+
+## Results
+
+### Identification (Rank-1 / Rank-5 Accuracy)
+
+| Scheme | Model | Rank-1 (%) | Rank-5 (%) |
+|--------|-------|-----------:|-----------:|
+| 226-class | SVM-RBF (tuned) | 80.53 | 79.65 |
+| 226-class | Random Forest | 55.60 | 76.25 |
+| 226-class | LDA | 80.97 | 87.61 |
+| 113-class | SVM-RBF (tuned) | 80.53 | 82.60 |
+| 113-class | Random Forest | 61.36 | 79.06 |
+| 113-class | LDA | 73.30 | 84.22 |
+
+### Verification (EER / AUC, averaged over 15 probe identities)
+
+| Scheme | Model | Avg EER (%) ↓ | Avg AUC ↑ |
+|--------|-------|--------------:|----------:|
+| 226-class | SVM-RBF (tuned) | 8.89 | 0.9185 |
+| 226-class | Random Forest | 13.33 | 0.8741 |
+| 226-class | LDA | 53.33 | 0.4370 |
+| 113-class | SVM-RBF (tuned) | 11.11 | 0.9093 |
+| 113-class | Random Forest | 16.67 | 0.8889 |
+| 113-class | LDA | 54.44 | 0.4278 |
+
+
+## Key Contributions
+
+- **SVM-RBF** is the **strongest classical baseline**, achieving **~80.5% Rank-1 accuracy** and **AUC ≈ 0.92** under strict cross-session conditions. The tuned hyperparameters (**C = 10**, **γ = scale**) indicate that the default settings were already **near-optimal** for this feature space.
+
+- **Random Forest** shows a **large Rank-1 / Rank-5 gap** (**~20 percentage points** in the 226-class case). It often places the correct identity in the **top-5** but struggles to rank it first, suggesting sensitivity to **session-specific texture changes** across the **2-month gap**.
+
+- **LDA** performs well for **identification** but **poorly for verification**. Although it achieves **81% Rank-1 accuracy** (226-class), its **53% EER** and **0.44 AUC** indicate poorly calibrated probability scores. Using **`CalibratedClassifierCV`** would improve its suitability for verification.
+
+- The difference between the **113-class** and **226-class** schemes is **small**. **Random Forest** benefits the most (**+5.8 percentage points Rank-1**) from merging left and right hands, while **SVM-RBF** remains largely unchanged and **LDA** degrades slightly.
+
+
+# Experiment -04
+

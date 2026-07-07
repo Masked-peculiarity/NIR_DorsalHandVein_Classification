@@ -352,25 +352,44 @@ Two identity schemes are evaluated in parallel: a 226-class scheme treating each
 
 ```mermaid
 flowchart TD
-    A["Raw 16-bit TIFF<br/>(752×560)"]
 
-    A --> B["ROI Extraction<br/>Gaussian Blur → Otsu Threshold → Morphological Closing<br/>Largest Inscribed Circle → Inscribed Square<br/>Resize to 128×128"]
+A["Raw 16-bit TIFF (752×560)"]
+B["ROI Extraction"]
+C["BlackHat Enhancement"]
+D["Frangi Enhancement"]
+E["Feature Extraction
+HOG (288-D)
+LBP (36-D)
+Grid (32-D)"]
+F["Feature Extraction
+HOG (288-D)
+LBP (36-D)
+Grid (32-D)"]
+G["Concatenate Features
+712-D"]
+H["PowerTransformer
+(Yeo-Johnson)"]
+I["PCA
+95% Variance"]
+J["SVM-RBF
+GridSearchCV"]
+K["Random Forest
+400 Trees"]
+L["LDA
+SVD"]
 
-    B --> C["BlackHat Enhancement<br/>CLAHE → BlackHat"]
-    B --> D["Frangi Enhancement<br/>Frangi Filter → CLAHE"]
-
-    C --> E["Feature Extraction<br/>HOG (288-D)<br/>LBP (36-D)<br/>Grid Density (32-D)"]
-    D --> F["Feature Extraction<br/>HOG (288-D)<br/>LBP (36-D)<br/>Grid Density (32-D)"]
-
-    E --> G["Concatenate Features (712-D)"]
-    F --> G
-
-    G --> H["PowerTransformer<br/>(Yeo–Johnson)"]
-    H --> I["PCA<br/>(95% Variance Retained)"]
-
-    I --> J["SVM-RBF<br/>(GridSearchCV)"]
-    I --> K["Random Forest<br/>(400 Trees)"]
-    I --> L["LDA<br/>(SVD Solver)"]
+A --> B
+B --> C
+B --> D
+C --> E
+D --> F
+E --> G
+F --> G
+G --> H
+H --> I
+I --> J
+I --> K
+I --> L
 ```
 
 ## Feature Extraction

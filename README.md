@@ -275,7 +275,21 @@ Two complementary architectures are investigated:
 
 ## System Architecture
 
-**Raw NIR Image → ROI Extraction → Vein Enhancement → Image Preprocessing (Resize + Normalization) → Deep Neural Network (CNN & ResNet-18) → Deep Feature Learning → 226-Class Softmax Classifier → Prediction**
+```mermaid
+flowchart LR
+
+A["Raw NIR Image"] -->
+B["ROI Extraction"] -->
+C["Vein Enhancement"] -->
+D["Image Preprocessing
+Resize + Normalization"] -->
+E["Deep Neural Network
+CNN / ResNet-18"] -->
+F["Deep Feature Learning"] -->
+G["226-Class
+Softmax Classifier"] -->
+H["Prediction"]
+```
 
 ## Deep Learning Models
 

@@ -349,51 +349,29 @@ By comparing a lightweight custom CNN with a deeper transfer learning architectu
 Two identity schemes are evaluated in parallel: a 226-class scheme treating each hand (left and right) as a separate identity, and a 113-class scheme merging both hands per person. All 113 overlapping subjects between the two databases are used.
 
 ## System Architecture
-Raw 16-bit TIFF (752×560)
-        │
-        ▼
-┌───────────────────────┐
-│   ROI Extraction      │
-│  Gaussian blur →      │
-│  Otsu threshold →     │
-│  Morph. closing →     │
-│  Largest inscribed    │
-│  circle (dist. xform) │
-│  → inscribed square   │
-│  → resize 128×128     │
-└──────────┬────────────┘
-           │
-     ┌─────┴──────┐
-     ▼            ▼
-┌─────────┐  ┌──────────┐
-│BlackHat │  │  Frangi  │
-│ CLAHE → │  │vesselness│
-│morpho.  │  │ filter → │
-│blackhat │  │  CLAHE   │
-└────┬────┘  └────┬─────┘
-     │             │
-     ▼             ▼
-┌─────────┐  ┌──────────┐
-│ HOG     │  │  HOG     │  288-D each
-│ LBP×2  │  │  LBP×2   │   36-D each
-│ Grid   │  │  Grid    │   32-D each
-└────┬────┘  └────┬─────┘
-     │             │
-     └──────┬──────┘
-            ▼
-     Concatenate → 712-D
-            │
-            ▼
-   PowerTransformer
-   (Yeo-Johnson)
-            │
-            ▼
-    PCA (95% variance)
-            │
-     ┌──────┼──────┐
-     ▼      ▼      ▼
-  SVM-RBF   RF    LDA
- (GridCV) (400t)  (SVD)
+
+```mermaid
+flowchart TD
+    A["Raw 16-bit TIFF<br/>(752×560)"]
+
+    A --> B["ROI Extraction<br/>Gaussian Blur → Otsu Threshold → Morphological Closing<br/>Largest Inscribed Circle → Inscribed Square<br/>Resize to 128×128"]
+
+    B --> C["BlackHat Enhancement<br/>CLAHE → BlackHat"]
+    B --> D["Frangi Enhancement<br/>Frangi Filter → CLAHE"]
+
+    C --> E["Feature Extraction<br/>HOG (288-D)<br/>LBP (36-D)<br/>Grid Density (32-D)"]
+    D --> F["Feature Extraction<br/>HOG (288-D)<br/>LBP (36-D)<br/>Grid Density (32-D)"]
+
+    E --> G["Concatenate Features (712-D)"]
+    F --> G
+
+    G --> H["PowerTransformer<br/>(Yeo–Johnson)"]
+    H --> I["PCA<br/>(95% Variance Retained)"]
+
+    I --> J["SVM-RBF<br/>(GridSearchCV)"]
+    I --> K["Random Forest<br/>(400 Trees)"]
+    I --> L["LDA<br/>(SVD Solver)"]
+```
 
 ## Feature Extraction
 

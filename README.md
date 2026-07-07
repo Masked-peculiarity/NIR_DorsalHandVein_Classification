@@ -33,9 +33,32 @@ The following pipeline applied to the dorsal hand vein dataset prior to classifi
 The pipeline converts raw NIR hand images into standardised 128×128 grayscale patches containing only the central palm vein region, free of 
 background, finger edges, and wrist artifacts.
 
-***
-**→ Raw NIR Image (752×560) → Gaussian Blur (5×5) → Otsu Thresholding → Binary Mask → Morphological Closing (15×15 ellipse, 3 iterations) → Largest Contour Extraction → Solid Hand Mask → Distance Transform → Largest Inscribed Circle (cx, cy, r) → Largest Inscribed Square (half_s = r × 0.7071) → Square Crop from Raw Grayscale (≈154×154 px) → Lanczos4 Resize → 128×128 → Standardised ROI**
-***
+```mermaid
+flowchart LR
+
+A["Raw NIR Image
+752×560"] -->
+B["Gaussian Blur
+5×5"] -->
+C["Otsu Thresholding"] -->
+D["Binary Mask"] -->
+E["Morphological Closing
+15×15 ellipse, 3 iterations"] -->
+F["Largest Contour
+Extraction"] -->
+G["Solid Hand Mask"] -->
+H["Distance Transform"] -->
+I["Largest Inscribed Circle
+(cx, cy, r)"] -->
+J["Largest Inscribed Square
+half_s = r × 0.7071"] -->
+K["Square Crop
+≈154×154 px"] -->
+L["Lanczos4 Resize"] -->
+M["Standardised ROI
+128×128"]
+```
+
 Further image processing algorithms were used to capture the morphological and structure of the images of Region of Interest (ROI)
 
 1. **Black Hat Transform** was used to highlight small, dark regions or details that are darker than their immediate surroundings and smaller than the chosen structuring element, This is mainly used for Feature collection and Background correction.
@@ -73,7 +96,23 @@ Unlike deep neural networks, where learned representations are often difficult t
 
 ## System Architecture
 
-**Raw NIR Image → ROI Extraction → Vein Enhancement (Blackhat / Frangi) → Feature Extraction (HOG + LBP + Grid Statistics) → Feature Fusion → Standardization → PCA Dimensionality Reduction →  Machine Learning Classifiers → Identification & Verification**
+```mermaid
+flowchart LR
+
+A["Raw NIR Image"] -->
+B["ROI Extraction"] -->
+C["Vein Enhancement
+BlackHat / Frangi"] -->
+D["Feature Extraction
+HOG + LBP + Grid Statistics"] -->
+E["Feature Fusion"] -->
+F["Standardization"] -->
+G["PCA
+Dimensionality Reduction"] -->
+H["Machine Learning Classifiers
+SVM-RBF / Random Forest / LDA"] -->
+I["Identification & Verification"]
+```
 
 ## Methodology
 ## Feature Extraction

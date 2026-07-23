@@ -1,0 +1,7 @@
+Scheme,Model,Rank-1 %,Rank-5 %,Avg EER %,Avg AUC
+226-class,SVM-RBF (tuned),80.53,79.65,8.89,0.9185
+226-class,Random Forest,55.60,76.25,13.33,0.8741
+226-class,LDA,80.97,87.61,53.33,0.4370
+113-class,SVM-RBF (tuned),80.53,82.60,11.11,0.9093
+113-class,Random Forest,61.36,79.06,16.67,0.8889
+113-class,LDA,73.30,84.22,54.44,0.4278

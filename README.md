@@ -503,5 +503,7 @@ I --> L
 - The difference between the **113-class** and **226-class** schemes is **small**. **Random Forest** benefits the most (**+5.8 percentage points Rank-1**) from merging left and right hands, while **SVM-RBF** remains largely unchanged and **LDA** degrades slightly.
 
 
-# Experiment -04
 
+
+
+# The above architecture & experiments is made as an ablation study, this is made as the baseline for the next set of experiments which are to be updated in this repository

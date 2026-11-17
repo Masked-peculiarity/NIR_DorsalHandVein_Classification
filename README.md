@@ -506,4 +506,372 @@ I --> L
 
 
 
-# The above architecture & experiments is made as an ablation study, this is made as the baseline for the next set of experiments which are to be updated in this repository
+# The above architecture & experiments is made as an ablation study, this is made as the baseline for the next set of experiments 
+<br>
+
+<br>
+
+# Angular-Margin Representation Learning for Cross-Session Dorsal Hand Vein Recognition
+
+This repository contains the experimental implementation and supplementary materials for the research paper:
+
+**Angular-Margin Representation Learning for Cross-Session Dorsal Hand Vein Recognition**
+
+The study investigates the effect of angular-margin-based representation learning on cross-session dorsal hand vein recognition. It compares a conventional Convolutional Neural Network (CNN) trained using Cross-Entropy (CE) loss against a CNN trained using joint Cross-Entropy and ArcFace-style angular-margin supervision.
+
+The experiments use a hand-specific biometric identification protocol with **226 identities**, evaluated across two acquisition sessions.
+
+---
+
+## Research Overview
+
+Dorsal hand vein recognition is a biometric identification approach that uses the vascular patterns visible beneath the skin under near-infrared (NIR) illumination.
+
+A major challenge in practical biometric recognition is the variation between enrollment and authentication sessions. This work evaluates whether angular-margin supervision can improve the discriminative quality of learned CNN embeddings under such cross-session variation.
+
+The primary objective is to conduct a controlled comparison between:
+
+1. **CNN + Cross-Entropy (CE):** Conventional classification-based feature learning.
+2. **CNN + CE + ArcFace:** Joint classification and angular-margin-based feature learning.
+
+Both experiments use the same dataset, preprocessing pipeline, CNN architecture, embedding dimension, training configuration, random seeds, and biometric evaluation protocol. The intended experimental difference is the addition of the ArcFace-style angular-margin objective.
+
+---
+
+## Repository Contents
+
+The repository contains the following experimental notebooks and research paper.
+
+| File | Description |
+|---|---|
+| `CNN_CE_226Classes_5Seeds.ipynb` | CNN baseline trained using Cross-Entropy loss only. |
+| `CNN_ArcFace_226Classes_5Seeds.ipynb` | CNN trained using joint Cross-Entropy and ArcFace-style angular-margin supervision. |
+| `paper.pdf` | Research paper describing the methodology, experimental protocol, results, and discussion. |
+
+### 1. CNN with Cross-Entropy Loss
+
+**Notebook:** `CNN_CE_226Classes_5Seeds.ipynb`
+
+This notebook implements the baseline CNN model using conventional Cross-Entropy supervision.
+
+The network learns a 256-dimensional feature representation and uses a 226-class linear classification head during training.
+
+After training, the learned embeddings are used for biometric identification and verification through cosine-similarity matching.
+
+### 2. CNN with Joint CE and ArcFace Supervision
+
+**Notebook:** `CNN_ArcFace_226Classes_5Seeds.ipynb`
+
+This notebook implements the angular-margin-based experiment.
+
+In addition to the conventional Cross-Entropy classification head, it introduces a separate ArcFace-style angular-margin head.
+
+The joint objective is:
+
+\[
+\mathcal{L} = \mathcal{L}_{CE} + \mathcal{L}_{ArcFace}
+\]
+
+The angular-margin parameters are:
+
+- Angular margin: \(m = 0.40\)
+- Scale parameter: \(s = 30\)
+
+Both loss terms have equal weight. The resulting 256-dimensional embeddings are evaluated using the same biometric matching procedure as the baseline.
+
+---
+
+## Dataset Description
+
+The experiments use the public dorsal hand vein image database which is already mentioned above
+
+### Dataset Distribution
+
+| Dataset | Images per hand identity | Total images | Role |
+|---|---:|---:|---|
+| DB1 | 4 | 904 | Training, validation, and enrollment |
+| DB2 | 3 | 678 | Cross-session testing |
+
+### Identity Labeling
+
+Each participant-hand pair is assigned a separate class label:
+
+\[
+y(p,h)=2(p-1)+I[h=R]
+\]
+
+where:
+
+- \(p\) represents the participant identifier.
+- \(h\) represents the hand (left or right).
+- \(I[h=R]\) equals 1 for the right hand and 0 for the left hand.
+
+This produces 226 distinct hand-specific biometric classes.
+
+**Dataset source:** [Dorsal Hand Vein Image Repository](https://github.com/wilchesf/dorsalhandveins)
+
+The dataset itself is not included in this repository. Users must obtain it from the original source and prepare the processed image folders required by the notebooks.
+
+---
+
+## Experimental Protocol
+
+The same data partition and evaluation protocol are maintained across both experiments.
+
+### Data Partitioning
+
+For every hand-specific identity:
+
+- First three DB1 images are used for training.
+- Fourth DB1 image is used for validation.
+- All three DB2 images are used as cross-session probes.
+
+| Subset | Number of images |
+|---|---:|
+| DB1 Training | 678 |
+| DB1 Validation | 226 |
+| DB1 Enrollment | 904 |
+| DB2 Testing | 678 |
+
+After checkpoint selection, all four DB1 images per identity are used to construct the enrollment template, including the image previously used for validation. This is part of the enrollment protocol described in the paper.
+
+### Preprocessing
+
+The notebooks use the ROI-processed image set (`FILTER_TYPE = "roi"`).
+
+The preprocessing pipeline consists of:
+
+1. Conversion to grayscale.
+2. Automatic contrast adjustment with a 2% cutoff.
+3. Resizing to 224 × 224 pixels.
+4. Tensor conversion.
+5. Normalization using mean 0.5 and standard deviation 0.5.
+
+Training-time augmentation includes:
+
+- Random rotation up to 3°.
+- Translation up to 2%.
+- Scaling between 0.98 and 1.02.
+- Brightness and contrast jitter of 0.05.
+
+Validation, enrollment, and testing use deterministic preprocessing without augmentation.
+
+### CNN Architecture
+
+Both notebooks use the same six-block CNN backbone.
+
+| Component | Configuration |
+|---|---|
+| Input | Grayscale image, 224 × 224 |
+| Convolutional blocks | 6 |
+| Channel progression | 32, 64, 128, 256, 256, 512 |
+| Convolution | 3 × 3 |
+| Normalization | Batch Normalization |
+| Activation | ReLU |
+| Pooling | Max Pooling in the first four blocks |
+| Feature aggregation | Global Average Pooling |
+| Embedding dimension | 256 |
+
+The baseline uses a conventional linear classification head. The ArcFace experiment adds a separate normalized angular-margin classification head.
+
+### Training Configuration
+
+| Parameter | Value |
+|---|---|
+| Optimizer | AdamW |
+| Initial learning rate | 0.001 |
+| Weight decay | 0.0001 |
+| Batch size | 32 |
+| Maximum epochs | 200 |
+| Learning-rate scheduler | Cosine Annealing |
+| Embedding dimension | 256 |
+| Number of classes | 226 |
+| Random seeds | 42, 123, 456, 2026, 777 |
+| Checkpoint selection | Minimum DB1 validation cross-entropy |
+
+Both notebooks include resumable training checkpoints saved after every epoch.
+
+---
+
+## Biometric Evaluation
+
+The final evaluation uses embedding-based template matching rather than relying only on the CNN classification head.
+
+### Enrollment Template Construction
+
+After model selection, the network is frozen and embeddings are extracted from all four DB1 images belonging to each hand identity.
+
+The four normalized embeddings are averaged and the resulting template is normalized.
+
+For a DB2 probe image, cosine similarity is calculated against all 226 enrollment templates. The highest-scoring template determines the predicted identity.
+
+### Evaluation Metrics
+
+**Identification metrics:**
+
+- Rank-1 identification accuracy.
+- Rank-5 identification accuracy.
+- Rank-10 identification accuracy.
+- Cumulative Match Characteristic (CMC).
+
+**Verification metrics:**
+
+- ROC-AUC.
+- Equal Error Rate (EER).
+- True Acceptance Rate (TAR) at FAR = 1%.
+- True Acceptance Rate (TAR) at FAR = 0.1%.
+
+Results are reported as mean and sample standard deviation across five training seeds.
+
+---
+
+## Experimental Results
+
+The following results are taken from the primary matched 226-class experiment reported in the paper.
+
+### CE vs. CE + ArcFace
+
+| Metric | CNN + CE | CNN + CE + ArcFace |
+|---|---:|---:|
+| Rank-1 (%) | 65.40 ± 2.71 | **81.86 ± 1.16** |
+| Rank-5 (%) | 82.12 ± 0.63 | **91.15 ± 0.96** |
+| Rank-10 (%) | 88.44 ± 0.67 | **94.10 ± 0.60** |
+| ROC-AUC | 0.9797 ± 0.0020 | **0.9882 ± 0.0012** |
+| EER (%) | 7.07 ± 0.48 | **4.95 ± 0.18** |
+| TAR @ FAR 1% (%) | 78.17 ± 1.05 | **90.68 ± 1.05** |
+| TAR @ FAR 0.1% (%) | 60.32 ± 2.96 | **81.68 ± 1.37** |
+
+The joint CE + ArcFace experiment improves the embedding-based identification and verification results under the evaluated cross-session protocol.
+
+In particular, Rank-1 identification increases by **16.46 percentage points**, while EER decreases by **2.12 percentage points**.
+
+These results indicate improved cross-session embedding discrimination for the evaluated dataset and experimental configuration.
+
+---
+
+---
+---
+
+## How to Run the Notebooks
+
+The experiments are implemented in Google Colab using Python and PyTorch.
+
+### Requirements
+
+The notebooks use the following libraries:
+
+- Python
+- PyTorch
+- Torchvision
+- NumPy
+- Pandas
+- Matplotlib
+- Pillow
+- Scikit-learn
+
+A CUDA-enabled GPU is recommended. The saved notebook execution output shows the experiments running on an NVIDIA Tesla T4 GPU.
+
+### Step 1: Open a Notebook
+
+Open either notebook using Google Colab.
+
+### Step 2: Prepare the Dataset
+
+Obtain the dorsal hand vein dataset and prepare the processed ROI images.
+
+The notebooks expect a directory containing the DB1 and DB2 PNG images.
+
+The image filenames must follow the expected naming convention:
+
+`person_PPP_dbS_HK_roi.png`
+
+For example:
+
+`person_001_db1_L1_roi.png`
+
+The notebooks search recursively within the configured dataset directory and validate the expected image counts and identity distribution.
+
+### Step 3: Mount Google Drive
+
+Both notebooks use Google Drive to access the dataset and save experiment outputs.
+
+Update the following paths in the notebook according to your Google Drive directory structure:
+
+```python
+DATA_ROOT = Path(
+    "/content/drive/MyDrive/DorsalVeinProject/processed_v2"
+)
+```
+
+The output directories are configured separately for the two experiments:
+
+**CE baseline:**
+
+```python
+OUT_DIR = Path(
+    "/content/drive/MyDrive/DorsalVeinProject/cnn_ce_226classes"
+)
+```
+
+**CE + ArcFace:**
+
+```python
+OUT_DIR = Path(
+    "/content/drive/MyDrive/DorsalVeinProject/cnn_arcface_226classes_m40"
+)
+```
+
+### Step 4: Execute the Notebook
+
+Run the notebook cells sequentially.
+
+The notebooks automatically:
+
+1. Load and validate the dataset.
+2. Assign the 226 hand-specific identity labels.
+3. Create the training, validation, and testing partitions.
+4. Apply preprocessing and augmentation.
+5. Initialize and train the CNN.
+6. Save resumable checkpoints.
+7. Select the best checkpoint using DB1 validation loss.
+8. Generate DB1 enrollment templates.
+9. Evaluate DB2 probes.
+10. Save experimental results and evaluation outputs.
+
+Both notebooks use the same five random seeds:
+
+```python
+SEEDS = [42, 123, 456, 2026, 777]
+```
+
+If training is interrupted, the checkpoint-resume functionality can be used to continue the experiment.
+
+---
+
+## Reproducibility and Experimental Notes
+
+- The two primary notebooks implement a matched five-seed comparison.
+- The same 226-class identity definition and DB1-to-DB2 partition are used in both experiments.
+- DB2 is used for cross-session probe evaluation, not for gradient updates or within-run checkpoint selection.
+- The enrollment templates use all four DB1 samples per identity after checkpoint selection, including the DB1 validation sample.
+- Verification comparisons share probes and enrollment templates and should not be interpreted as statistically independent observations.
+- TAR at fixed FAR values is estimated from the evaluation ROC and represents benchmark operating points, not independently calibrated deployment thresholds.
+- The reported results should be interpreted within the evaluated dataset and protocol. They do not establish generalization to other dorsal hand vein datasets or acquisition systems.
+
+---
+
+## Research Paper
+
+The full methodology, mathematical formulation, experimental results, comparative analysis, error analysis, and limitations are provided in the accompanying paper:
+
+**Angular-Margin Representation Learning for Cross-Session Dorsal Hand Vein Recognition**
+
+The paper presents the matched 226-class CE versus CE + ArcFace comparison and an auxiliary 113-class experiment.
+
+---
+
+## Acknowledgements
+
+The authors acknowledge the creators of the public dorsal hand vein database for making the NIR image data available for research.
+
+**Note:** This repository is intended for academic and research purposes. Please refer to the original dataset source for its usage and distribution terms.
